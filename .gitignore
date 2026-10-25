@@ -1,0 +1,34 @@
+# Local state: the database, the inbox, the queue
+state/
+*.db
+*.db-journal
+*.sqlite
+
+# Label files stay out of git; scripts/fetch_labels.sh downloads the real ones
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Secrets: tokens live in a password manager, never here
+.env
+.env.*
+!.env.example
+*.pem
+*.env
+
+# Large archives
+*.tar
+*.tar.gz
+*.tar.xz
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/

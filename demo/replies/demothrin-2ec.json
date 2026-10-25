@@ -1,0 +1,44 @@
+{
+"schema": "spraywatch.label/1",
+"product_name": "DEMOTHRIN 2EC",
+"epa_reg_no": "99999-202",
+"product_type": "insecticide",
+"rei": {
+"value": 24,
+"unit": "hours",
+"page": 1,
+"line": 15,
+"quote": "entry interval (REI) of 24 hours, except as noted for specific crops below."
+},
+"crops": [
+{
+"crop": "lettuce",
+"condition": "HEAD AND LEAF",
+"phi": {
+"value": 21,
+"unit": "days",
+"page": 2,
+"line": 7,
+"quote": "- Do not apply within 21 days of harvest."
+},
+"rei": null
+},
+{
+"crop": "grapes",
+"phi": {
+"value": 14,
+"unit": "days",
+"page": 2,
+"line": 13,
+"quote": "- Do not apply within 14 days of harvest."
+},
+"rei": {
+"value": 3,
+"unit": "days",
+"page": 2,
+"line": 14,
+"quote": "- The REI for grapes is 3 days for hand labor tasks such as girdling and"
+}
+}
+]
+}

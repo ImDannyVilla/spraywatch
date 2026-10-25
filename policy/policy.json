@@ -1,0 +1,29 @@
+{
+  "schema": "spraywatch.policy/1",
+  "farm_name": "Demo Farm",
+  "approvers": ["Farm manager", "Assistant manager"],
+  "harvest_start_time": "06:00",
+  "morning_time": "06:30",
+  "crop_aliases": {
+    "strawberries": "strawberry",
+    "grapes": "grape",
+    "table grapes": "grape",
+    "wine grapes": "grape",
+    "tomatoes": "tomato",
+    "lettuce, head": "lettuce",
+    "head lettuce": "lettuce",
+    "leaf lettuce": "lettuce"
+  },
+  "card": {
+    "harvest_conflict": "{block}: harvest is set for {scheduled}, but {applied}'s {product} ({product_type}) needs {interval}. Earliest legal harvest: {earliest}.",
+    "entry_conflict": "{block}: {crew} is set to enter at {scheduled}, but {applied}'s {product} ({product_type}) keeps the block closed for {interval}. Earliest legal entry: {earliest}.",
+    "unknown_product": "{block}: a spray on {applied} uses a product with no label on file. Add its label to the inbox.",
+    "label_unconfirmed": "{block}: {applied}'s spray uses {product}, whose label hasn't been confirmed. No interval is applied until it is.",
+    "crop_not_on_label": "{block}: {applied}'s {product} label doesn't list {crop}. Check the label and the spray.",
+    "spray": "{block}: {product} ({product_type}) logged {applied_time}. Restricted entry until {rei_end}. Do-not-enter posting ready.",
+    "link": "Review: {link}",
+    "digest_header": "Spray compliance, {date}: {count} open alert{plural}.",
+    "digest_none": "Spray compliance, {date}: no open alerts.",
+    "digest_line": "- {line} {link}"
+  }
+}

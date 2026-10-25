@@ -1,0 +1,369 @@
+```json
+{
+  "schema": "spraywatch.label/1",
+  "product_name": "Captan 80 DF",
+  "epa_reg_no": "42750-231",
+  "product_type": "fungicide",
+  "rei": {
+    "value": 24,
+    "unit": "hours",
+    "page": 5,
+    "line": 19,
+    "quote": "Do not enter or allow worker entry into treated areas during the restricted entry interval (REI) of: 24 hours for strawberries, almonds, apples, apricots, cherries, nectarines, plums/fresh prunes, and peaches, blueberries, grapes, raspberries, blackberries, and dewberries."
+  },
+  "crops": [
+    {
+      "crop": "almond",
+      "phi": {
+        "value": 30,
+        "unit": "days",
+        "page": 8,
+        "line": 22,
+        "quote": "Do not apply within 30 days of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 8,
+        "line": 24,
+        "quote": "REI is 24 hours."
+      }
+    },
+    {
+      "crop": "apple",
+      "condition": "East of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 8,
+        "line": 52,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 8,
+        "line": 53,
+        "quote": "REI is 24 hours"
+      }
+    },
+    {
+      "crop": "apple",
+      "condition": "West of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 9,
+        "line": 16,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 9,
+        "line": 17,
+        "quote": "REI is 24 hours."
+      }
+    },
+    {
+      "crop": "apricot",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 9,
+        "line": 33,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 9,
+        "line": 34,
+        "quote": "REI is 24 hours."
+      }
+    },
+    {
+      "crop": "blueberry",
+      "condition": "East of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 9,
+        "line": 51,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 9,
+        "line": 52,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "blueberry",
+      "condition": "West of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 10,
+        "line": 11,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 10,
+        "line": 12,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "blackberry",
+      "phi": {
+        "value": 3,
+        "unit": "days",
+        "page": 10,
+        "line": 28,
+        "quote": "Do not apply within 3 days of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 10,
+        "line": 29,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "raspberry",
+      "phi": {
+        "value": 3,
+        "unit": "days",
+        "page": 10,
+        "line": 28,
+        "quote": "Do not apply within 3 days of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 10,
+        "line": 29,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "dewberry",
+      "phi": {
+        "value": 3,
+        "unit": "days",
+        "page": 10,
+        "line": 28,
+        "quote": "Do not apply within 3 days of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 10,
+        "line": 29,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "cherry",
+      "condition": "East of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 10,
+        "line": 54,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 10,
+        "line": 55,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "cherry",
+      "condition": "West of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 11,
+        "line": 12,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 11,
+        "line": 13,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "grape",
+      "condition": "U.S. except CA",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 11,
+        "line": 33,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 11,
+        "line": 34,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "grape",
+      "condition": "California only",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 11,
+        "line": 56,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 48,
+        "unit": "hours",
+        "page": 11,
+        "line": 57,
+        "quote": "The REI is 48 hours."
+      }
+    },
+    {
+      "crop": "nectarine",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 12,
+        "line": 30,
+        "quote": "Pre-harvest sprays may be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 12,
+        "line": 31,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "peach",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 13,
+        "line": 28,
+        "quote": "Pre-harvest sprays may be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 13,
+        "line": 29,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "plum",
+      "condition": "East of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 13,
+        "line": 47,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 13,
+        "line": 48,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "fresh prune",
+      "condition": "East of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 13,
+        "line": 47,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 13,
+        "line": 48,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "plum",
+      "condition": "West of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 14,
+        "line": 15,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 14,
+        "line": 16,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "fresh prune",
+      "condition": "West of the Rockies",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 14,
+        "line": 15,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 14,
+        "line": 16,
+        "quote": "The REI is 24 hours."
+      }
+    },
+    {
+      "crop": "strawberry",
+      "phi": {
+        "value": 0,
+        "unit": "days",
+        "page": 14,
+        "line": 39,
+        "quote": "May be applied up to day of harvest."
+      },
+      "rei": {
+        "value": 24,
+        "unit": "hours",
+        "page": 14,
+        "line": 40,
+        "quote": "The REI is 24 hours."
+      }
+    }
+  ]
+}
+```

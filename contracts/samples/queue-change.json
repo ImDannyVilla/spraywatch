@@ -1,0 +1,14 @@
+{
+  "alert_id": 2,
+  "approved_at": "2026-10-26T09:12",
+  "approver": "Farm manager",
+  "block_id": "B4",
+  "from": "2026-10-29",
+  "harvest_id": "H4",
+  "kind": "harvest_conflict",
+  "label_id": 1,
+  "reason": "phi",
+  "schema": "spraywatch.queue/1",
+  "spray_id": 1,
+  "to": "2026-11-02"
+}

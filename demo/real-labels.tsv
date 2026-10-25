@@ -1,0 +1,3 @@
+# Real, public pesticide labels from EPA's Pesticide Product Label System (PPLS). scripts/fetch_labels.sh downloads them.
+# name	sha256	url
+captan-80-df.pdf	00be7ccff73ec481c1631ac1aba2a2b3ca1bbcaef29781a3d3625bc5fcc5355d	https://www3.epa.gov/pesticides/chem_search/ppls/042750-00231-20111117.pdf

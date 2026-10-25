@@ -1,0 +1,37 @@
+{
+"schema": "spraywatch.label/1",
+"product_name": "DEMOFUNG 50 WP",
+"epa_reg_no": "99999-101",
+"product_type": "fungicide",
+"rei": {
+"value": 12,
+"unit": "hours",
+"page": 1,
+"line": 18,
+"quote": "entry interval (REI) of 12 hours."
+},
+"crops": [
+{
+"crop": "grapes",
+"phi": {
+"value": 7,
+"unit": "days",
+"page": 2,
+"line": 8,
+"quote": "- Do not apply within 7 days of harvest."
+},
+"rei": null
+},
+{
+"crop": "strawberries",
+"phi": {
+"value": 0,
+"unit": "days",
+"page": 2,
+"line": 16,
+"quote": "- May be applied up to the day of harvest."
+},
+"rei": null
+}
+]
+}
