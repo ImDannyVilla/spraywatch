@@ -196,6 +196,28 @@ class FarmTest(unittest.TestCase):
         self.run_check(later, now=datetime(2026, 10, 26, 7, 0))
         self.assertEqual(later.cards, [])
 
+    def test_a_pdf_waiting_for_its_text_is_tried_again(self):
+        from unittest import mock
+
+        from labels import extract
+        from scripts import make_pdf, pdf_pages
+
+        for name in ("demofung-50wp.txt", "demothrin-2ec.txt"):
+            (self.inbox / name).unlink()
+        pdf = self.inbox / "demofung-50wp.pdf"
+        pdf.write_bytes(make_pdf.pdf_bytes((DEMO / "labels" / "demofung-50wp.txt").read_text(encoding="utf-8")))
+        with mock.patch.object(extract.shutil, "which", return_value=None):
+            report = self.scan()
+            self.assertEqual((report.labels, report.failed, len(report.waiting)), ([], [], 1))
+            self.assertFalse(db.has_event(self.conn, "label_failed", {}))
+        if not shutil.which("pdftotext"):
+            self.skipTest("needs poppler-utils to write the sidecar")
+        pdf_pages.write_sidecars(self.inbox)
+        with mock.patch.object(extract.shutil, "which", return_value=None):
+            report = self.scan()
+        self.assertEqual(len(report.labels), 1)
+        self.assertEqual(report.ignored, [])  # the sidecar is read with its PDF, not as a file of its own
+
     def test_bad_rows_are_skipped_and_reported(self):
         self.scan()
         write_csv(self.inbox / "sprays-bad.csv", "block_id,product,epa_reg_no,applied_at,applicator",

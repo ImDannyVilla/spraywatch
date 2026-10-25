@@ -181,6 +181,26 @@ class PdfTest(unittest.TestCase):
             label = reader.validate(reply_for("demofung-50wp"), source)
             self.assertTrue(all(fact.quote_verified for fact in label.facts))
 
+    def test_without_poppler_the_sidecar_is_read_only_for_its_own_pdf(self):
+        from unittest import mock
+
+        from scripts import pdf_pages
+
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf = Path(tmp) / "demofung-50wp.pdf"
+            pdf.write_bytes(make_pdf.pdf_bytes((DEMO / "labels" / "demofung-50wp.txt").read_text(encoding="utf-8")))
+            with_poppler = extract.load(pdf)
+            with mock.patch.object(extract.shutil, "which", return_value=None):
+                with self.assertRaises(extract.NotReady):
+                    extract.load(pdf)
+            self.assertEqual(pdf_pages.write_sidecars(Path(tmp)), ["wrote demofung-50wp.pdf.pages.txt"])
+            self.assertEqual(pdf_pages.write_sidecars(Path(tmp)), [])  # already current
+            with mock.patch.object(extract.shutil, "which", return_value=None):
+                self.assertEqual(extract.load(pdf).pages, with_poppler.pages)
+                pdf.write_bytes(make_pdf.pdf_bytes("A different label\n"))
+                with self.assertRaises(extract.NotReady):
+                    extract.load(pdf)
+
     def test_a_pdf_without_text_is_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             pdf = Path(tmp) / "scan.pdf"

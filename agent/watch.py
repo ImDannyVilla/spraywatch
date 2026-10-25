@@ -6,7 +6,9 @@
 
 Each file is handled once, by its SHA-256, as contracts/README.md "The inbox"
 says. A label the model can't read is logged as `label_failed` and left for a
-person; drop a better scan or photo in to try again.
+person; drop a better scan or photo in to try again. A PDF whose text isn't
+there yet (in the sandbox, until the host writes its sidecar) is tried again on
+the next pass.
 
 | Variable | Default | What |
 | --- | --- | --- |
@@ -44,6 +46,7 @@ class InboxReport:
     labels: list[int] = field(default_factory=list)
     imports: list[store.ImportReport] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
+    waiting: list[str] = field(default_factory=list)  # PDFs whose text the host hasn't written yet
     ignored: list[str] = field(default_factory=list)
 
 
@@ -87,6 +90,8 @@ def scan(conn: sqlite3.Connection, inbox: Path, models: ModelSource, report: Inb
 
     for path in sorted(files, key=rank):
         kind = store.csv_kind(path)
+        if extract.is_sidecar(path):
+            continue  # read with its PDF
         if kind is None and path.suffix.lower() not in extract.LABEL_SUFFIXES:
             report.ignored.append(path.name)
             continue
@@ -106,6 +111,8 @@ def scan(conn: sqlite3.Connection, inbox: Path, models: ModelSource, report: Inb
             source = extract.load(path)
             model = models.for_label(path)
             report.labels.append(store.save_label(conn, source, reader.read(source, model), model.name))
+        except extract.NotReady as error:
+            report.waiting.append(f"{path.name}: {error}")
         except (extract.ExtractError, reader.ReplyError, model_module.ModelError) as error:
             report.failed.append(f"{path.name}: {error}")
             with conn:
@@ -122,6 +129,7 @@ def describe(report: InboxReport) -> str:
         parts.append(f"{item.kind}: {item.added} added, {item.updated} updated"
                      + (f", {len(item.errors)} bad rows" if item.errors else ""))
     parts.extend(f"failed {item}" for item in report.failed)
+    parts.extend(f"waiting {item}" for item in report.waiting)
     return "; ".join(parts) or "nothing new"
 
 
