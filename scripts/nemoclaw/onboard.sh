@@ -14,7 +14,7 @@
 #
 # Needs ~/spraywatch-input/slack.env (chmod 600), never in git:
 #   SPRAYWATCH_SLACK_BOT_TOKEN=xoxb-...
-#   SLACK_CHANNEL=C...
+#   SLACK_CHANNEL=C...   (or the channel's name; invite the bot to it)
 set -eu
 
 # NemoClaw needs the docker group in this process (.agents/lessons in ClearFrame).
@@ -30,8 +30,9 @@ export NODE_NO_WARNINGS=1
 set -a; . "$SECRETS"; set +a
 : "${SPRAYWATCH_SLACK_BOT_TOKEN:?not set in $SECRETS}"
 : "${SLACK_CHANNEL:?not set in $SECRETS}"
+# A channel ID (C0123ABCD) or a channel name (spraywatch); chat.postMessage takes either.
 case "$SLACK_CHANNEL" in
-    *[!A-Z0-9]*|"") echo "onboard: SLACK_CHANNEL must be a channel ID like C0123ABCD" >&2; exit 1 ;;
+    *[!A-Za-z0-9_-]*|"") echo "onboard: SLACK_CHANNEL must be a channel ID or a plain channel name" >&2; exit 1 ;;
 esac
 
 mkdir -p "$FARM/inbox"
