@@ -9,6 +9,8 @@ state/
 *.png
 *.jpg
 *.jpeg
+# except the page's screenshots for the README (scripts/validate_repo.py allows PNG there only)
+!docs/screenshots/*.png
 
 # Secrets: tokens live in a password manager, never here
 .env
