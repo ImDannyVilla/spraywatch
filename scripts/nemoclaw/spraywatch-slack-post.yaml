@@ -1,0 +1,19 @@
+preset:
+  name: spraywatch-slack-post
+  description: "SprayWatch cards: chat.postMessage and auth.test on slack.com, from Python, with the spraywatch-slack credential"
+network_policies:
+  spraywatch_slack_post:
+    name: spraywatch_slack_post
+    endpoints:
+      - host: slack.com
+        port: 443
+        protocol: rest
+        enforcement: enforce
+        rules:
+          - allow: { method: POST, path: "/api/chat.postMessage" }
+          - allow: { method: GET, path: "/api/auth.test" }
+          - allow: { method: POST, path: "/api/auth.test" }
+        credential_binding:
+          provider: spraywatch-slack
+    binaries:
+      - { path: /usr/bin/python3* }

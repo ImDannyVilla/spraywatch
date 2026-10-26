@@ -6,7 +6,7 @@
 set -eu
 
 APP=/sandbox/spraywatch/app
-STATE=/sandbox/spraywatch/state
+STATE=/sandbox/spraywatch-state  # the mounts' parent folder is root-owned
 mkdir -p "$STATE"
 
 export SPRAYWATCH_DB="$STATE/spraywatch.db"
@@ -17,7 +17,8 @@ export PYTHONDONTWRITEBYTECODE=1   # the app mount is read-only
 export MODEL_URL="${MODEL_URL:-http://host.openshell.internal:8000/v1}"
 export MODEL_NAME="${MODEL_NAME:-nvidia/Qwen3.6-35B-A3B-NVFP4}"
 export MODEL_API_KEY="${NEMOCLAW_LOCAL_INFERENCE_TOKEN:-}"
-# A placeholder too: the real token never enters the sandbox.
+# A placeholder too (openshell:resolve:env:...): the gateway puts the real token in at
+# egress, only on the slack.com rule in scripts/nemoclaw/spraywatch-slack-post.yaml.
 export SLACK_BOT_TOKEN="${SPRAYWATCH_SLACK_BOT_TOKEN:-}"
 SLACK_CHANNEL="$(cat "$STATE/slack-channel" 2>/dev/null || true)"
 export SLACK_CHANNEL
