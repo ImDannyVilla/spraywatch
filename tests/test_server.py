@@ -65,6 +65,48 @@ class PageTest(unittest.TestCase):
     def post(self, action, **fields):
         return self.request("POST", f"/action/{action}", {"token": self.config.token, **fields})
 
+    def upload(self, files, token=None):
+        boundary = "spraywatch-test-boundary"
+        token = self.config.token if token is None else token
+        body = f"--{boundary}\r\nContent-Disposition: form-data; name=\"token\"\r\n\r\n{token}\r\n".encode()
+        for name, data in files:
+            body += (f"--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{name}\"\r\n"
+                     "Content-Type: application/octet-stream\r\n\r\n").encode() + data + b"\r\n"
+        body += f"--{boundary}--\r\n".encode()
+        conn = http.client.HTTPConnection("127.0.0.1", self.config.port, timeout=10)
+        conn.request("POST", "/upload", body=body, headers={
+            "Host": f"127.0.0.1:{self.config.port}", "Content-Type": f"multipart/form-data; boundary={boundary}"})
+        response = conn.getresponse()
+        response.read()
+        conn.close()
+        return response.status, response.getheader("Location")
+
+    def test_files_are_added_to_the_inbox(self):
+        status, _, text = self.request("GET", "/inbox/new")
+        self.assertEqual(status, 200)
+        self.assertIn("Add to the inbox", text)
+        label = b"%PDF-1.4\r\n" + bytes(range(256)) * 8 + b"\n%%EOF\r\n"
+        status, location = self.upload([("captan 80 df.pdf", label), ("sprays-today.csv", b"block_id\n")])
+        self.assertEqual(status, 303)
+        self.assertIn("done=", location)
+        self.assertEqual((self.config.inbox_dir / "captan 80 df.pdf").read_bytes(), label)
+        self.assertTrue((self.config.inbox_dir / "sprays-today.csv").exists())
+        _, location = self.upload([("captan 80 df.pdf", b"%PDF-1.4 a different file")])
+        self.assertIn("refused=", location)
+        self.assertEqual((self.config.inbox_dir / "captan 80 df.pdf").read_bytes(), label)
+
+    def test_uploads_are_checked(self):
+        for name in ("tool.exe", "notes.csv"):
+            _, location = self.upload([(name, b"data")])
+            self.assertIn("refused=", location, name)
+            self.assertFalse((self.config.inbox_dir / name).exists())
+        _, location = self.upload([("../escape.pdf", b"%PDF-1.4")])
+        self.assertFalse((self.tmp / "escape.pdf").exists())
+        self.assertTrue((self.config.inbox_dir / "escape.pdf").exists())
+        status, _ = self.upload([("label.pdf", b"%PDF-1.4")], token="stale")
+        self.assertEqual(status, 403)
+        self.assertFalse((self.config.inbox_dir / "label.pdf").exists())
+
     def test_the_whole_page_flow(self):
         status, _, text = self.request("GET", "/")
         self.assertEqual(status, 200)

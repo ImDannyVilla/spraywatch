@@ -10,6 +10,7 @@ Pages, as contracts/README.md "The local page" says:
   label line as proof, and Approve.
 - `/label/<id>`: every fact with its quote and the label page around it, Confirm and Reject.
 - `/spray/new`: log a spray; the check runs at once, so the card goes out now.
+- `/inbox/new`: add label PDFs or photos and the farm's CSV files to the inbox, for the watcher.
 - `/posting/<spray_id>`: the do-not-enter posting in English and Spanish, ready to print.
 
 Only the GB10's own browser can reach it: it binds to 127.0.0.1, POSTs carry a
@@ -18,9 +19,12 @@ another web page open in the same browser can't press the buttons.
 """
 from __future__ import annotations
 
+import email.parser
+import email.policy
 import html
 import json
 import os
+import re
 import secrets
 import sqlite3
 import sys
@@ -40,6 +44,10 @@ from agent import approval, card, check, db, posting, rules, slack, store  # noq
 from policy import policy as policy_loader  # noqa: E402
 
 MAX_FORM_BYTES = 16 * 1024
+MAX_UPLOAD_BYTES = 40 * 1024 * 1024
+UPLOAD_SUFFIXES = (".pdf", ".png", ".jpg", ".jpeg", ".csv")
+# The CSV names the watcher reads, as contracts/README.md "The inbox" says.
+CSV_NAME = re.compile(r"blocks\.csv|(?:sprays|harvests|crew)[A-Za-z0-9._ -]*\.csv")
 EXCERPT_LINES = 3
 
 
@@ -92,7 +100,7 @@ a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
 a:focus,button:focus,select:focus,input:focus{outline:3px solid var(--blue);outline-offset:2px}
 header.top{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1.5rem;margin-bottom:1.5rem}
 header.top .brand{color:var(--ink);font-size:1.45rem;font-weight:300}
-header.top nav a{color:var(--ink)}
+header.top nav a{color:var(--ink);margin-right:1.2rem}
 header.top .note{margin-left:auto;color:var(--muted);font-size:.85rem}
 h1{font-size:2.1rem;font-weight:300;margin:.2rem 0 1rem}
 h2{font-size:1.05rem;font-weight:400;color:#3a3a3a;margin:2rem 0 .6rem}
@@ -147,7 +155,7 @@ def page(title: str, body: str) -> str:
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
             f"<title>{esc(title)} · SprayWatch</title><style>{CSS}</style></head><body>"
             "<header class=\"top noprint\"><a class=\"brand\" href=\"/\">SprayWatch</a>"
-            "<nav><a href=\"/spray/new\">Log a spray</a></nav>"
+            "<nav><a href=\"/spray/new\">Log a spray</a><a href=\"/inbox/new\">Add files</a></nav>"
             "<span class=\"note\">local page, on this machine only</span></header>"
             f"<main>{body}</main></body></html>")
 
@@ -387,6 +395,18 @@ def render_spray_form(conn: sqlite3.Connection, config: Config, query: dict) -> 
                   "alerted in Slack at once.</p>" + form(config, "log_spray", {}, inner, "Log spray"))
 
 
+def render_upload_form(config: Config, query: dict) -> str:
+    return page("Add files", "<h1>Add files to the inbox</h1>" + banner(query)
+                + "<p>Label PDFs or photos, and the farm's CSV files: blocks.csv, or a name starting with "
+                  "sprays, harvests or crew. The watcher reads new files within seconds, and a new label waits "
+                  "on its page until you confirm it.</p>"
+                + "<form method=\"post\" action=\"/upload\" enctype=\"multipart/form-data\">"
+                  f"<input type=\"hidden\" name=\"token\" value=\"{esc(config.token)}\">"
+                  "<p><label for=\"files\">Files</label><input id=\"files\" type=\"file\" name=\"file\" "
+                  "multiple required accept=\".pdf,.png,.jpg,.jpeg,.csv\"></p>"
+                  "<button type=\"submit\">Add to the inbox</button></form>")
+
+
 def render_posting(conn: sqlite3.Connection, policy: dict, spray_id: int, query: dict) -> str | None:
     if conn.execute("SELECT 1 FROM sprays WHERE spray_id = ?", (spray_id,)).fetchone() is None:
         return None
@@ -437,6 +457,50 @@ def act(conn: sqlite3.Connection, config: Config, policy: dict, action: str, fie
     raise KeyError(action)
 
 
+class UploadError(ValueError):
+    """A file the inbox won't take. The message says why, for the page's banner."""
+
+
+def read_multipart(content_type: str, body: bytes) -> tuple[dict, list[tuple[str, bytes]]]:
+    """(text fields, [(file name, bytes)]) from a multipart/form-data body."""
+    message = email.parser.BytesParser(policy=email.policy.HTTP).parsebytes(
+        f"Content-Type: {content_type}\r\nMIME-Version: 1.0\r\n\r\n".encode("latin-1") + body)
+    fields: dict = {}
+    files: list[tuple[str, bytes]] = []
+    for part in message.iter_parts():
+        filename = part.get_filename()
+        data = part.get_payload(decode=True) or b""
+        if filename is not None:
+            if filename:
+                files.append((filename, data))
+        elif part.get_param("name", header="content-disposition"):
+            fields[part.get_param("name", header="content-disposition")] = data.decode("utf-8", "replace")
+    return fields, files
+
+
+def save_upload(inbox: Path, filename: str, data: bytes) -> tuple[str, bool]:
+    """Save one file into the inbox: (name, newly saved). Never overwrites a different file."""
+    name = re.sub(r"[^A-Za-z0-9._ -]", "-", Path(filename).name).strip(" .")[:120]
+    suffix = Path(name).suffix.lower()
+    if suffix not in UPLOAD_SUFFIXES:
+        raise UploadError(f"{name or 'that file'}: the inbox takes label PDFs or photos and the farm's CSV files")
+    if suffix == ".csv" and not CSV_NAME.fullmatch(name):
+        raise UploadError(f"{name}: a CSV must be blocks.csv, or start with sprays, harvests or crew")
+    if not data:
+        raise UploadError(f"{name} is empty")
+    path = inbox / name
+    if path.exists():
+        if path.read_bytes() == data:
+            return name, False
+        raise UploadError(f"a different {name} is already in the inbox: rename yours")
+    if not inbox.is_dir() or not os.access(inbox, os.W_OK):
+        raise UploadError("the inbox is read-only here: copy files into the farm inbox on the host")
+    part = inbox / f".{name}.part"
+    part.write_bytes(data)
+    os.replace(part, path)
+    return name, True
+
+
 class Handler(BaseHTTPRequestHandler):
     config: Config
     server_version = "SprayWatch"
@@ -482,6 +546,8 @@ class Handler(BaseHTTPRequestHandler):
                 body = render_index(conn, config, policy, query)
             elif parts == ["spray", "new"]:
                 body = render_spray_form(conn, config, query)
+            elif parts == ["inbox", "new"]:
+                body = render_upload_form(config, query)
             elif len(parts) == 2 and parts[1].isdigit():
                 number = int(parts[1])
                 if parts[0] == "alert":
@@ -517,6 +583,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):  # noqa: N802 - the base class's name
         if not self.host_ok():
             return self.send(HTTPStatus.FORBIDDEN, "Only the local browser may use this page.", "text/plain")
+        if urllib.parse.urlsplit(self.path).path == "/upload":
+            return self.upload()
         length = int(self.headers.get("Content-Length") or 0)
         if length > MAX_FORM_BYTES:
             return self.send(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Form too large.", "text/plain")
@@ -545,6 +613,34 @@ class Handler(BaseHTTPRequestHandler):
             return self.redirect(f"{where}?{urllib.parse.urlencode({'done': done})}")
         finally:
             conn.close()
+
+    def upload(self):
+        """Files from /inbox/new into the inbox. The watcher picks them up on its next pass."""
+        length = int(self.headers.get("Content-Length") or 0)
+        if length > MAX_UPLOAD_BYTES:
+            return self.send(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, "Upload too large.", "text/plain")
+        content_type = self.headers.get("Content-Type") or ""
+        if not content_type.startswith("multipart/form-data"):
+            return self.send(HTTPStatus.BAD_REQUEST, "Expected a file upload.", "text/plain")
+        fields, files = read_multipart(content_type, self.rfile.read(length))
+        if not secrets.compare_digest(fields.get("token", ""), self.config.token):
+            return self.send(HTTPStatus.FORBIDDEN, "Stale or missing form token: reload the page.", "text/plain")
+        if not files:
+            return self.redirect(f"/inbox/new?{urllib.parse.urlencode({'refused': 'choose a file first'})}")
+        saved, already = [], []
+        try:
+            for filename, data in files:
+                name, new = save_upload(self.config.inbox_dir, filename, data)
+                (saved if new else already).append(name)
+        except UploadError as error:
+            return self.redirect(f"/inbox/new?{urllib.parse.urlencode({'refused': str(error)})}")
+        except OSError as error:
+            refused = f"couldn't write to the inbox: {error.strerror}"
+            return self.redirect(f"/inbox/new?{urllib.parse.urlencode({'refused': refused})}")
+        done = f"Added {', '.join(saved)} to the inbox; the watcher reads it within seconds." if saved else ""
+        if already:
+            done = f"{done} Already in the inbox: {', '.join(already)}.".strip()
+        return self.redirect(f"/?{urllib.parse.urlencode({'done': done})}")
 
 
 def make_server(config: Config) -> ThreadingHTTPServer:

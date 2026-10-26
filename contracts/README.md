@@ -126,4 +126,5 @@ An approved schedule change is written to `queue/schedule-change-<alert_id>.json
 | `/alert/<id>` | The conflict, the binding spray, the label line as proof, Approve |
 | `/label/<id>` | Every fact with its quote and the label page around it, Confirm and Reject |
 | `/spray/new` | Log a spray; the check runs at once |
+| `/inbox/new` | Add label PDFs or photos and the CSV files to the inbox, for the watcher. Takes only `.pdf`, `.png`, `.jpg` and the CSV names in "The inbox"; never overwrites a different file; refused when the inbox is read-only |
 | `/posting/<spray_id>` | The do-not-enter posting, in English and Spanish, ready to print |
