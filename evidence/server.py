@@ -81,44 +81,74 @@ def unslack(text: str) -> str:
     return text.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
 
 
+# The look follows the PS4 20th Anniversary theme, without its pattern or colours: a flat grey ground,
+# flat light tiles and panels, one blue for actions.
 CSS = """
-:root{--fg:#111;--bg:#fff;--muted:#555;--line:#ccc;--ok:#e6f4ea;--okb:#2e7d32;--bad:#fde7e7;--badb:#b71c1c;
---warn:#fff4d6;--hl:#fff1a8;--link:#0645ad}
-@media (prefers-color-scheme: dark){:root{--fg:#eee;--bg:#161616;--muted:#aaa;--line:#444;--ok:#173d22;
---okb:#6fbf73;--bad:#4a1d1d;--badb:#ef9a9a;--warn:#4a3d12;--hl:#5c4f10;--link:#8ab4f8}}
-body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;margin:0 auto;max-width:1100px;padding:1rem;
-color:var(--fg);background:var(--bg);line-height:1.45}
-a{color:var(--link)}a:focus,button:focus,select:focus,input:focus{outline:3px solid #1a73e8;outline-offset:2px}
-h1{font-size:1.6rem;margin:.2rem 0 .8rem}h2{font-size:1.25rem;margin-top:2rem;border-bottom:1px solid var(--line)}
-table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:.35rem .5rem;
-border-bottom:1px solid var(--line);vertical-align:top}
+:root{--bg:#c9cacc;--tile:#f2f2f2;--tile2:#e2e2e2;--ink:#222;--muted:#5d5d5d;--line:#dddddd;--blue:#0072ce}
+html{background:var(--bg)}
+body{font-family:"SST","Helvetica Neue",Helvetica,Ubuntu,Arial,sans-serif;margin:0 auto;max-width:1100px;
+padding:1.5rem 1.25rem 3rem;color:var(--ink);line-height:1.45}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+a:focus,button:focus,select:focus,input:focus{outline:3px solid var(--blue);outline-offset:2px}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1.5rem;margin-bottom:1.5rem}
+header.top .brand{color:var(--ink);font-size:1.45rem;font-weight:300}
+header.top nav a{color:var(--ink)}
+header.top .note{margin-left:auto;color:var(--muted);font-size:.85rem}
+h1{font-size:2.1rem;font-weight:300;margin:.2rem 0 1rem}
+h2{font-size:1.05rem;font-weight:400;color:#3a3a3a;margin:2rem 0 .6rem}
+.tiles{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+.tile{background:var(--tile);padding:1.1rem 1.1rem 1.2rem;min-height:190px}
+.tile .icon{width:64px;height:64px;display:block;margin-bottom:.9rem}
+.tile p{margin:0}.tile .tile-id{margin-bottom:.3rem;font-size:.85rem}
+table{border-collapse:collapse;width:100%;background:var(--tile)}
+th,td{text-align:left;padding:.55rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;font-size:.85rem;color:var(--muted)}tr:last-child td{border-bottom:0}
 .wrap{overflow-x:auto}
-.tag{display:inline-block;padding:.05rem .45rem;border-radius:.3rem;font-weight:600;border:1px solid var(--muted);
-font-size:.9rem}
-.tag-open,.tag-unverified,.tag-extracted{background:var(--warn)}.tag-approved,.tag-confirmed,.tag-verified{background:var(--ok)}
-.tag-resolved,.tag-rejected{opacity:.7}
-.card{border:1px solid var(--line);border-radius:.4rem;padding:.75rem 1rem;margin:.75rem 0}
-.banner{padding:.6rem .9rem;border-radius:.3rem;margin:.6rem 0;font-weight:600}
-.banner-ok{background:var(--ok);border:1px solid var(--okb)}.banner-refused{background:var(--bad);border:1px solid var(--badb)}
-pre.label{border:1px solid var(--line);padding:.5rem;overflow-x:auto;white-space:pre-wrap;font-size:.85rem}
-pre.label mark{background:var(--hl);color:inherit;display:block}
-.quote{border-left:4px solid var(--muted);padding:.3rem .7rem;margin:.4rem 0}
-button{font-size:1rem;padding:.35rem .9rem;margin:.2rem .4rem .2rem 0;cursor:pointer}
-label{margin-right:.4rem}input,select{font-size:1rem;margin:.2rem .6rem .2rem 0}
+.tag{display:inline-block;padding:.05rem .45rem;border-radius:2px;font-weight:600;font-size:.78rem;
+background:var(--tile2);color:var(--ink);vertical-align:middle}
+.tag-resolved,.tag-rejected{color:var(--muted)}
+.card,main>form{background:var(--tile);padding:1rem 1.2rem;margin:6px 0}
+.banner{padding:.7rem 1rem;margin:.6rem 0;font-weight:600;background:var(--tile)}
+.banner-ok{color:#006b33}.banner-refused{color:#b3170f}
+pre.label{background:#fafafa;padding:.6rem .8rem;overflow-x:auto;white-space:pre-wrap;font-size:.85rem;margin:.5rem 0 0}
+pre.label mark{background:rgba(246,190,0,.45);color:inherit;display:block}
+.quote{margin:.4rem 0;color:#444;font-style:italic}
+button{font:inherit;font-size:.95rem;padding:.5rem 1.1rem;margin:.3rem .5rem .3rem 0;cursor:pointer;
+background:var(--blue);color:#fff;border:0;border-radius:2px}
+button:hover{background:#005fae}
+label{margin-right:.4rem}
+input,select{font:inherit;font-size:.95rem;margin:.2rem .6rem .2rem 0;padding:.35rem .5rem;border:1px solid #bdbdbd;
+border-radius:2px;background:#fff}
 .muted{color:var(--muted)}
-.sign{border:6px solid var(--fg);padding:1rem 1.5rem;margin:1rem 0;page-break-inside:avoid}
+.sign{background:#fff;color:#111;border:6px solid #111;padding:1rem 1.5rem;margin:1rem 0;page-break-inside:avoid}
 .sign .head{font-size:2.6rem;font-weight:800;line-height:1.1;margin:0 0 .6rem}
 .sign p{font-size:1.25rem}
-@media print{header,.noprint{display:none}body{max-width:none}}
+@media print{html{background:none}header,.noprint{display:none}body{max-width:none;padding:0}}
 """
+
+# One pictogram per alert kind, on a 64 x 64 grid; holes are cut with the even-odd rule.
+ICONS = {
+    "harvest_conflict": ("M16 4h6v8h-6zM42 4h6v8h-6zM6 12h52v46H6zM12 24h10v10H12zM28 24h10v10H28z"
+                         "M44 24h10v10H44zM12 40h10v10H12zM28 40h10v10H28zM44 40h10v10H44z"),  # a calendar
+    "entry_conflict": ("M6 10h52v10H6zM6 50h52v8H6zM10 20h6v30h-6zM22 20h6v30h-6zM34 20h6v30h-6z"
+                       "M46 20h6v30h-6z"),  # a gate
+    "label": "M8 14h32l16 18-16 18H8zM20 32a4 4 0 1 0 8 0a4 4 0 1 0-8 0z",  # a tag: the label itself
+}
+
+
+def icon(kind: str) -> str:
+    path = ICONS.get(kind, ICONS["label"])
+    return ("<svg class=\"icon\" viewBox=\"0 0 64 64\" aria-hidden=\"true\" focusable=\"false\">"
+            f"<path fill=\"#3a3a3a\" fill-rule=\"evenodd\" d=\"{path}\"/></svg>")
 
 
 def page(title: str, body: str) -> str:
     return ("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
             f"<title>{esc(title)} · SprayWatch</title><style>{CSS}</style></head><body>"
-            "<header class=\"noprint\"><p><a href=\"/\">SprayWatch</a> · <a href=\"/spray/new\">Log a spray</a> · "
-            "local page, on this machine only</p></header>"
+            "<header class=\"top noprint\"><a class=\"brand\" href=\"/\">SprayWatch</a>"
+            "<nav><a href=\"/spray/new\">Log a spray</a></nav>"
+            "<span class=\"note\">local page, on this machine only</span></header>"
             f"<main>{body}</main></body></html>")
 
 
@@ -181,7 +211,7 @@ def fact_block(label: sqlite3.Row, fact: sqlite3.Row) -> str:
 
 def render_index(conn: sqlite3.Connection, config: Config, policy: dict, query: dict) -> str:
     body = [f"<h1>{esc(policy.get('farm_name', 'SprayWatch'))}</h1>", banner(query)]
-    alerts = conn.execute("SELECT alert_id FROM alerts WHERE state = 'open' ORDER BY alert_id").fetchall()
+    alerts = conn.execute("SELECT alert_id, kind FROM alerts WHERE state = 'open' ORDER BY alert_id").fetchall()
     body.append(f"<h2>Open alerts ({len(alerts)})</h2>")
     if alerts:
         items = []
@@ -190,8 +220,9 @@ def render_index(conn: sqlite3.Connection, config: Config, policy: dict, query: 
                 line = unslack(card.alert_line(policy, card.alert_context(conn, row["alert_id"])))
             except card.CardError as error:
                 line = f"(can't summarize: {error})"
-            items.append(f"<li><a href=\"/alert/{row['alert_id']}\">Alert {row['alert_id']}</a>: {esc(line)}</li>")
-        body.append("<ul>" + "".join(items) + "</ul>")
+            items.append(f"<li class=\"tile\">{icon(row['kind'])}<p class=\"tile-id\">"
+                         f"<a href=\"/alert/{row['alert_id']}\">Alert {row['alert_id']}</a></p><p>{esc(line)}</p></li>")
+        body.append("<ul class=\"tiles\">" + "".join(items) + "</ul>")
     else:
         body.append("<p>No open alerts.</p>")
 
