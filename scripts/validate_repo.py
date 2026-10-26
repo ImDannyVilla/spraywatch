@@ -52,6 +52,10 @@ BANNED_SUFFIXES = (
     ".pem", ".key",
 )
 
+# The one exception: screenshots of the local page for the README, as PNG directly in this
+# folder. Label photos are PNG or JPEG too, so every other image path stays banned.
+SCREENSHOTS = "docs/screenshots/"
+
 LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 FENCE = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
 
@@ -79,10 +83,15 @@ def check_contract_terms(errors: list[str]) -> None:
             errors.append(f"contracts/README.md no longer mentions: {term}")
 
 
+def is_screenshot(path: str) -> bool:
+    name = path[len(SCREENSHOTS):]
+    return path.startswith(SCREENSHOTS) and "/" not in name and name.lower().endswith(".png")
+
+
 def check_banned_files(errors: list[str], files: list[str]) -> None:
     for path in files:
         name = Path(path).name
-        if path.lower().endswith(BANNED_SUFFIXES):
+        if path.lower().endswith(BANNED_SUFFIXES) and not is_screenshot(path):
             errors.append(f"tracked file type that must stay out of git: {path}")
         elif name == ".env" or (name.startswith(".env.") and not name.endswith(".example")):
             errors.append(f"tracked environment file: {path}")
