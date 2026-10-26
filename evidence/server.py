@@ -119,7 +119,7 @@ background:var(--tile2);color:var(--ink);vertical-align:middle}
 .banner{padding:.7rem 1rem;margin:.6rem 0;font-weight:600;background:var(--tile)}
 .banner-ok{color:#006b33}.banner-refused{color:#b3170f}
 pre.label{background:#fafafa;padding:.6rem .8rem;overflow-x:auto;white-space:pre-wrap;font-size:.85rem;margin:.5rem 0 0}
-pre.label mark{background:rgba(246,190,0,.45);color:inherit;display:block}
+pre.label mark{background:rgba(246,190,0,.45);color:inherit;display:inline-block;width:100%}
 .quote{margin:.4rem 0;color:#444;font-style:italic}
 button{font:inherit;font-size:.95rem;padding:.5rem 1.1rem;margin:.3rem .5rem .3rem 0;cursor:pointer;
 background:var(--blue);color:#fff;border:0;border-radius:2px}
